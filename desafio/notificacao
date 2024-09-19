@@ -1,0 +1,6 @@
+{
+  "Comment": "Enviando notificação ao cliente",
+  "Type": "Task",
+  "Resource": "arn:aws:sns:us-east-1:123456789012:EnviarNotificacao",
+  "End": true
+}
