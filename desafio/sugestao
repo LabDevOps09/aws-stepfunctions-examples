@@ -1,0 +1,25 @@
+const AWS = require('aws-sdk');
+const bedrock = new AWS.Bedrock();
+
+exports.handler = async (event) => {
+    const userId = event.userId;
+    
+    // Obter histórico de pedidos do DynamoDB
+    const orderHistory = await getOrderHistoryFromDynamoDB(userId);
+    
+    // Chamar Amazon Bedrock para análise
+    const recommendations = await getRecommendationsFromBedrock(orderHistory);
+    
+    return {
+        statusCode: 200,
+        body: JSON.stringify({
+            message: `Olá, que tal adicionar ${recommendations.item} ao seu pedido?`,
+        }),
+    };
+};
+
+// Simulação de função de Bedrock para recomendações
+async function getRecommendationsFromBedrock(orderHistory) {
+    // Aqui você pode integrar com modelos de machine learning que aprendem com o comportamento do cliente.
+    return { item: "sobremesa" };  // Exemplo simples de recomendação
+}
