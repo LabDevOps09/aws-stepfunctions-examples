@@ -1,60 +1,27 @@
-## aws-stepfunctions-examples
+# Criando um Assistente de Delivery com AWS Step Functions e Amazon Bedrock 🏍️
 
-AWS Step Functions is a low-code visual workflow service. This repository includes detailed examples that will help you unlock the power of serverless workflow.
+Este projeto demonstra como construir um Assistente de Delivery que gerencia todo o fluxo de um pedido, desde a solicitação até a entrega, utilizando **AWS Step Functions** e integrando o **Amazon Bedrock** para fornecer uma experiência personalizada ao cliente.
 
-## Examples and Supporting Blog Posts
+## Cenário
+Um cliente faz um pedido de comida em um aplicativo de delivery. O assistente gerencia o fluxo de ponta a ponta: valida o pedido, processa o pagamento, envia o pedido para o restaurante, monitora a entrega e interage com o cliente utilizando o **Amazon Bedrock** para fornecer sugestões personalizadas.
 
-### Accelerating workloads using parallelism in AWS Step Functions
+## 1. 🛒 Recebimento do Pedido
 
-In this example, you use [AWS Step Functions](https://aws.amazon.com/step-functions/) to build an application that uses parallel processing to complete four hours of work in around 60 seconds.
+Quando o cliente faz um pedido por meio do aplicativo ou website, os dados do pedido (como itens, quantidade e endereço de entrega) são enviados para uma função **AWS Lambda**. Essa função é responsável por validar as informações do pedido, verificando se os dados inseridos estão corretos e completos. Caso haja algum erro, o processo retorna uma mensagem informando ao cliente o problema. Se o pedido estiver correto, ele avança para a etapa de validação do pagamento.
 
-Blog Post: [Accelerating workloads using parallelism in AWS Step Functions](https://aws.amazon.com/blogs/compute/accelerating-workloads-using-parallelism-in-aws-step-functions/)
+## 2. 💳 Validação do Pagamento
 
-### Controlling concurrency in distributed systems using AWS Step Functions
+Após o pedido ser validado, uma nova função **Lambda** é acionada para realizar a verificação do pagamento. A função se conecta a um serviço de pagamento externo, como Stripe ou PayPal, para processar a transação e confirmar se o pagamento foi aprovado. Caso a transação seja bem-sucedida, o pedido é liberado para a próxima fase. Se houver falha no pagamento, o cliente é notificado e o pedido não é processado.
 
-In this example, you use [AWS Step Functions](https://aws.amazon.com/step-functions/) to control concurrency in your distributed system. This helps you avoid overloading limited resources in your serverless data processing pipeline or reduce availability risk by controlling velocity in your IT automation workflows.
+## 3. 🍽️ Processamento do Pedido
 
-Blog Post: [Controlling concurrency in distributed systems using AWS Step Functions](https://aws.amazon.com/blogs/compute/controlling-concurrency-in-distributed-systems-using-aws-step-functions/)
+Com o pagamento validado, o pedido é enviado ao restaurante e o sistema atualiza seu status (ex.: "em preparo") no banco de dados **DynamoDB**. Nesse ponto, o **Amazon Bedrock** entra em ação para sugerir produtos adicionais ao cliente. Com base no histórico de pedidos, ele pode sugerir itens relevantes ou ofertas especiais, como sobremesas ou bebidas, incentivando compras adicionais e proporcionando uma experiência mais personalizada.
 
-### Mocking service integrations with Step Functions Local
-In this example, you use AWS Step Functions' Local to test a state machine by mocking the service calls. You can find details in the example's [README](./sam/app-local-testing-mock-config/README.md) file.
+## 4. 🚚 Atualização do Status e Monitoramento da Entrega
 
-Blog Post: [Mocking service integrations with AWS Step Functions Local](https://aws.amazon.com/blogs/compute/mocking-service-integrations-with-aws-step-functions-local/)
+Ao longo do processo de entrega, o status do pedido (como "em preparo", "a caminho" ou "entregue") é atualizado no **DynamoDB**. Além disso, o **Amazon Bedrock** pode ser utilizado para personalizar as notificações enviadas ao cliente, ajustando o tempo estimado de entrega com base no tráfego local ou outras variáveis externas. Isso garante que o cliente esteja sempre informado sobre o progresso de seu pedido de forma precisa e personalizada.
 
-### Orchestrating S3 Glacier Deep Archive object retrieval using Step Functions
-In this example, you use AWS Step Functions to orchestrate restoration of S3 objects from S3 Glacier Deep Archive. You can find details in the example's [README](./cdk/app-glacier-deep-archive-retrieval/README.md) file.
+## 5. 📲 Notificação ao Cliente
 
-Blog Post: [Orchestrating S3 Glacier Deep Archive object retrieval using Step Functions](Blog Link Here)
-
-### Video Segment Detection and Edition with using AWS Step Functions
-This workflow is meant to show you how to leverage AWS Step Functions for performing typical video edition tasks. Specifically, the example uses a video that has [SMPTE color bars](https://en.wikipedia.org/wiki/SMPTE_color_bars) of random duration at the beginning. The workflow will get a demo video from S3, put it through Amazon Rekognition for detecting segments, and then Amazon MediaConvert removes the initial video segment (SMPTE color bars). You can find details in the example's [README](./sam/app-video-segment-detection-and-edition/README.md) file.
-
-Blog Post: [Low code workflows with AWS Elemental MediaConvert](https://aws.amazon.com/blogs/media/low-code-workflows-with-aws-elemental-mediaconvert/)
-
-## Demos of Step Functions capabilities
-
-### Demo Step Functions Local testing with Mock service integrations using Java testing frameworks (JUnit and Spock)
-In this demo, you can learn how to use JUnit or Spock to run Step Functions Local tests. This is helpful if your current serverless applications are built around Java. With this approach you can leverage the existing Java testing tools.
-
-[Demo App](./sam/demo-local-testing-using-java/README.md)
-
-### ASL Demo
-
-This demo illustrates capabilities of ASL and [AWS Step Functions](https://aws.amazon.com/step-functions/) including Intrinsic Functions and JSON Path Processing.
-
-You can deploy this using SAM or independently as a CloudFormation template in AWS Console
-
-### Video Transcription with AWS SDK Service Integrations ###
-
-In this demo, you learn how to use AWS SDK Service Integrations to build a video transcription workflow.
-
-Blog Post: [Now — AWS Step Functions Supports 200 AWS Services To Enable Easier Workflow Automation](https://github.com/aws-samples/aws-stepfunctions-examples/tree/main/sam/demo-video-transcription)
-
-## Security
-
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
-
-## License
-
-This library is licensed under the MIT-0 License. See the LICENSE file.
+Durante todo o processo, o cliente recebe notificações via **Amazon SNS** sobre o status do pedido, como "Seu pedido está sendo preparado" ou "Seu pedido está a caminho!". O **Amazon Bedrock** também é usado para enriquecer essas interações, permitindo que o sistema sugira ofertas, cupons de desconto ou outros produtos baseados no comportamento anterior do cliente. Um exemplo pode ser a sugestão de uma bebida complementar ao pedido ou uma oferta exclusiva, melhorando a experiência do usuário.  🔚
 
